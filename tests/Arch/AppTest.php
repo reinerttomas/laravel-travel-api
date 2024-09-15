@@ -2,10 +2,30 @@
 
 declare(strict_types=1);
 
-arch('php')->preset()->php();
+use App\Http\Controllers\Controller;
 
-arch('security')->preset()->security();
+arch('php')
+    ->preset()
+    ->php();
 
-arch('laravel')->preset()->laravel();
+arch('security')
+    ->preset()
+    ->security();
 
-arch('strict')->preset()->strict();
+arch('laravel')
+    ->preset()
+    ->laravel();
+
+arch('strict')
+    ->expect('App')
+    ->toUseStrictTypes()
+    ->classes()->not->toBeAbstract()
+    ->ignoring(Controller::class)
+    ->classes()->toBeFinal()
+    ->ignoring(Controller::class);
+
+arch('function')
+    ->expect([
+        'sleep',
+        'usleep',
+    ])->not->toBeUsed();
