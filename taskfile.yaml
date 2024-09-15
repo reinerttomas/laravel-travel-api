@@ -9,15 +9,25 @@ tasks:
     cmds:
       - vendor/bin/rector --dry-run
 
+  ccs:
+    cmds:
+      - vendor/bin/pint --config pint.json -v --test
+
   ci:
     cmds:
       - task: rector
       - task: phpstan
+      - task: ccs
 
   fix:rector:
     cmds:
       - vendor/bin/rector
 
+  fix:ccs:
+    cmds:
+      - vendor/bin/pint --config pint.json
+
   fix:
     cmds:
       - task: fix:rector
+      - task: fix:ccs
