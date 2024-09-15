@@ -3,8 +3,21 @@ version: '3'
 tasks:
   phpstan:
     cmds:
-      - ./vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 1G
+      - vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 1G
+
+  rector:
+    cmds:
+      - vendor/bin/rector --dry-run
 
   ci:
     cmds:
+      - task: rector
       - task: phpstan
+
+  fix:rector:
+    cmds:
+      - vendor/bin/rector
+
+  fix:
+    cmds:
+      - task: fix:rector
