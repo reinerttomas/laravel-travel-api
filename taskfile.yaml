@@ -13,11 +13,16 @@ tasks:
     cmds:
       - vendor/bin/pint --config pint.json -v --test
 
+  test:
+    cmds:
+      - php artisan test {{.CLI_ARGS}}
+
   ci:
     cmds:
       - task: rector
       - task: phpstan
       - task: ccs
+      - task: test
 
   fix:rector:
     cmds:
