@@ -18,3 +18,8 @@ parameters:
 	        message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall::.*\(\).#'
 	        paths:
 	            - tests/*
+
+	    -
+	        message: '#^Parameter \$get of static method Illuminate\\Database\\Eloquent\\Casts\\Attribute<mixed,mixed>::make\(\) expects \(callable\(mixed, mixed\): .* given.#'
+	        paths:
+	            - app/Models/*
