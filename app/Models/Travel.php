@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Builders\Queries\TravelBuilder;
 use Database\Factories\TravelFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -29,6 +30,11 @@ final class Travel extends Model
         'is_public',
         'number_of_days',
     ];
+
+    public function newEloquentBuilder($query): TravelBuilder
+    {
+        return new TravelBuilder($query);
+    }
 
     /**
      * @return HasMany<Tour>

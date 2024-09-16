@@ -13,7 +13,7 @@ final class TravelController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
-        $travels = Travel::where('is_public', true)->paginate();
+        $travels = Travel::query()->wherePublic()->paginate();
 
         return TravelResource::collection($travels);
     }
