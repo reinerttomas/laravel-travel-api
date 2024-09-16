@@ -9,9 +9,7 @@ use function Pest\Laravel\get;
 
 it('returns list of travels with pagination', function () {
     // Arrange
-    Travel::factory()->count(20)->create([
-        'is_public' => true,
-    ]);
+    Travel::factory()->count(20)->public()->create();
 
     // Act & Assert
     expect(get('/api/v1/travels'))
@@ -37,12 +35,8 @@ it('returns list of travels with pagination', function () {
 
 it('returns list of public travels', function () {
     // Arrange
-    Travel::factory()->create([
-        'is_public' => false,
-    ]);
-    $publicTravel = Travel::factory()->create([
-        'is_public' => true,
-    ]);
+    $notPublicTravel = Travel::factory()->notPublic()->create();
+    $publicTravel = Travel::factory()->public()->create();
 
     // Act & Assert
     expect(get('/api/v1/travels'))
@@ -51,6 +45,7 @@ it('returns list of public travels', function () {
             ->has('data', 1)
             ->has('data.0', fn (AssertableJson $json) => $json
                 ->where('id', $publicTravel->id)
+                ->whereNot('id', $notPublicTravel->id)
                 ->etc()
             )
             ->etc()

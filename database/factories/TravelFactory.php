@@ -26,4 +26,18 @@ final class TravelFactory extends Factory
             'number_of_days' => fake()->randomNumber(),
         ];
     }
+
+    public function public(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_public' => true,
+        ]);
+    }
+
+    public function notPublic(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_public' => false,
+        ]);
+    }
 }
