@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Builders\Queries\TourBuilder;
 use Database\Factories\TourFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -28,6 +29,11 @@ final class Tour extends Model
         'ending_date',
         'price',
     ];
+
+    public function newEloquentBuilder($query): TourBuilder
+    {
+        return new TourBuilder($query);
+    }
 
     /**
      * @return BelongsTo<Travel, Tour>
