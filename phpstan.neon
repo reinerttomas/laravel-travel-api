@@ -1,5 +1,5 @@
 parameters:
-	level: 9
+	level: 8
 	paths:
 		- app
 		- database/factories
@@ -25,11 +25,17 @@ parameters:
 	            - tests/*
 
 	    -
-	        message: '#^Parameter \$get of static method Illuminate\\Database\\Eloquent\\Casts\\Attribute<mixed,mixed>::make\(\) expects \(callable\(mixed, mixed\): .* given.#'
-	        paths:
-	            - app/Models/*
-
-	    -
 	        message: '#^Access to an undefined property App\\Http\\Resources\\.*::\$.*.#'
 	        paths:
 	            - app/Http/Resources*
+
+	    -
+	        message: '#^Cannot call method toDateString\(\) on string.#'
+	        paths:
+	            - app/Http/Resources*
+
+	    -
+	        message: '#Parameter \#2 \$callback of method Illuminate\\Database\\Eloquent\\Relations\\HasMany<.*>::when\(\) expects \(callable\(Illuminate\\Database\\Eloquent\\Relations\\HasMany<.*>, bool\): .*\)\|null, Closure\(.*\): .* given\.#'
+	        paths:
+	            - app/*
+

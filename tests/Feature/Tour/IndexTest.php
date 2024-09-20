@@ -8,7 +8,7 @@ use Illuminate\Testing\Fluent\AssertableJson;
 
 use function Pest\Laravel\get;
 
-it('returns tours of travel by slug', function () {
+it('returns tours of travel by slug', function (): void {
     // Arrange
     $travel = Travel::factory()->create();
     $tour = Tour::factory()->create([
@@ -50,7 +50,7 @@ it('shows tour price correctly', function () {
         );
 });
 
-it('returns tours of travel with pagination', function () {
+it('returns tours of travel with pagination', function (): void {
     // Arrange
     $travel = Travel::factory()->create();
     Tour::factory()->count(20)->create([
@@ -77,4 +77,223 @@ it('returns tours of travel with pagination', function () {
                 ->etc()
             )
         );
+});
+
+it('returns tours of travel sort by starting date correctly', function (): void {
+    // Arrange
+    $travel = Travel::factory()->create();
+    $laterTour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+        'starting_date' => now()->addDays(2),
+        'ending_date' => now()->addDays(3),
+    ]);
+    $earlierTour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+        'starting_date' => now(),
+        'ending_date' => now()->addDay(),
+    ]);
+
+    // Act & Assert
+    expect(get('/api/v1/travels/' . $travel->slug . '/tours'))
+        ->assertOk()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', 2)
+            ->has('data.0', fn (AssertableJson $json) => $json
+                ->where('id', $earlierTour->id)
+                ->etc()
+            )
+            ->has('data.1', fn (AssertableJson $json) => $json
+                ->where('id', $laterTour->id)
+                ->etc()
+            )
+            ->etc()
+        );
+});
+
+it('returns tours of travel sort by price correctly', function (): void {
+    // Arrange
+    $travel = Travel::factory()->create();
+    $expensiveTour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+        'price' => 200,
+    ]);
+    $cheapLaterTour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+        'price' => 100,
+        'starting_date' => now()->addDays(2),
+        'ending_date' => now()->addDays(3),
+    ]);
+    $cheapEarlierTour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+        'price' => 100,
+        'starting_date' => now(),
+        'ending_date' => now()->addDay(),
+    ]);
+
+    // Act & Assert
+    expect(get('/api/v1/travels/' . $travel->slug . '/tours?sortBy=price&sortDirection=asc'))
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $cheapEarlierTour->id)
+        ->assertJsonPath('data.1.id', $cheapLaterTour->id)
+        ->assertJsonPath('data.2.id', $expensiveTour->id);
+});
+
+it('filters tours of travel by price correctly', function (): void {
+    // Arrange
+    $travel = Travel::factory()->create();
+    $expensiveTour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+        'price' => 200,
+    ]);
+    $cheapTour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+        'price' => 100,
+    ]);
+
+    $endpoint = '/api/v1/travels/' . $travel->slug . '/tours';
+
+    // Act & Assert
+
+    // priceFrom
+    $priceFrom = 100;
+
+    expect(get($endpoint . '?priceFrom=' . $priceFrom))
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonFragment(['id' => $cheapTour->id])
+        ->assertJsonFragment(['id' => $expensiveTour->id]);
+
+    $priceFrom = 150;
+
+    expect(get($endpoint . '?priceFrom=' . $priceFrom))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonMissing(['id' => $cheapTour->id])
+        ->assertJsonFragment(['id' => $expensiveTour->id]);
+
+    $priceFrom = 250;
+
+    expect(get($endpoint . '?priceFrom=' . $priceFrom))
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+
+    // priceTo
+    $priceTo = 200;
+
+    expect(get($endpoint . '?priceTo=' . $priceTo))
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonFragment(['id' => $cheapTour->id])
+        ->assertJsonFragment(['id' => $expensiveTour->id]);
+
+    $priceTo = 150;
+
+    expect(get($endpoint . '?priceTo=' . $priceTo))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonFragment(['id' => $cheapTour->id])
+        ->assertJsonMissing(['id' => $expensiveTour->id]);
+
+    $priceTo = 50;
+
+    expect(get($endpoint . '?priceTo=' . $priceTo))
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+
+    // priceFrom & priceTo
+    $priceFrom = 150;
+    $priceTo = 250;
+
+    expect(get($endpoint . '?priceFrom=' . $priceFrom . '&priceTo=' . $priceTo))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonMissing(['id' => $cheapTour->id])
+        ->assertJsonFragment(['id' => $expensiveTour->id]);
+});
+
+it('filters tours of travel by starting date correctly', function (): void {
+    // Arrange
+    $travel = Travel::factory()->create();
+    $laterTour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+        'starting_date' => now()->addDays(2),
+        'ending_date' => now()->addDays(3),
+    ]);
+    $earlierTour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+        'starting_date' => now(),
+        'ending_date' => now()->addDay(),
+    ]);
+
+    $endpoint = '/api/v1/travels/' . $travel->slug . '/tours';
+
+    // Act & Assert
+
+    // startingFrom
+    $startingFrom = now();
+
+    expect(get($endpoint . '?startingFrom=' . formatDate($startingFrom)))
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonFragment(['id' => $earlierTour->id])
+        ->assertJsonFragment(['id' => $laterTour->id]);
+
+    $startingFrom = now()->addDay();
+
+    expect(get($endpoint . '?startingFrom=' . formatDate($startingFrom)))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonMissing(['id' => $earlierTour->id])
+        ->assertJsonFragment(['id' => $laterTour->id]);
+
+    $startingFrom = now()->addDays(5);
+
+    expect(get($endpoint . '?startingFrom=' . formatDate($startingFrom)))
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+
+    // startingTo
+    $startingTo = now()->addDays(5);
+
+    expect(get($endpoint . '?startingTo=' . formatDate($startingTo)))
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonFragment(['id' => $earlierTour->id])
+        ->assertJsonFragment(['id' => $laterTour->id]);
+
+    $startingTo = now()->addDay();
+
+    expect(get($endpoint . '?startingTo=' . formatDate($startingTo)))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonFragment(['id' => $earlierTour->id])
+        ->assertJsonMissing(['id' => $laterTour->id]);
+
+    $startingTo = now()->subDay();
+
+    expect(get($endpoint . '?startingTo=' . formatDate($startingTo)))
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+
+    // startingFrom & startingTo
+    $startingFrom = now()->addDay();
+    $startingTo = now()->addDays(5);
+
+    expect(get($endpoint . '?startingFrom=' . formatDate($startingFrom) . '&startingTo=' . formatDate($startingTo)))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonMissing(['id' => $earlierTour->id])
+        ->assertJsonFragment(['id' => $laterTour->id]);
+});
+
+it('it returns validation errors', function (): void {
+    // Arrange
+    $travel = Travel::factory()->create();
+
+    // Act & Assert
+    expect(get('/api/v1/travels/' . $travel->slug . '/tours?startingFrom=abc'))
+        ->assertUnprocessable();
+
+    expect(get('/api/v1/travels/' . $travel->slug . '/tours?priceFrom=abc'))
+        ->assertUnprocessable();
 });
