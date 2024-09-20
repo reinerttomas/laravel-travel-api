@@ -13,6 +13,8 @@ declare(strict_types=1);
 |
 */
 
+use Carbon\CarbonInterface;
+
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
@@ -41,7 +43,7 @@ expect()->extend('toBeOne', fn () => $this->toBe(1));
 |
 */
 
-function something(): void
+function formatDate(CarbonInterface $carbon): string
 {
-    // ..
+    return $carbon->toDateString();
 }
