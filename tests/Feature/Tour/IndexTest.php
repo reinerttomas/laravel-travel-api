@@ -18,9 +18,9 @@ it('returns tours of travel by slug', function (): void {
     // Act & Assert
     expect(get('/api/v1/travels/' . $travel->slug . '/tours'))
         ->assertOk()
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json): AssertableJson => $json
             ->has('data', 1)
-            ->has('data.0', fn (AssertableJson $json) => $json
+            ->has('data.0', fn (AssertableJson $json): AssertableJson => $json
                 ->where('id', $tour->id)
                 ->etc()
             )
@@ -28,7 +28,7 @@ it('returns tours of travel by slug', function (): void {
         );
 });
 
-it('shows tour price correctly', function () {
+it('shows tour price correctly', function (): void {
     // Arrange
     $travel = Travel::factory()->create();
     $tour = Tour::factory()->create([
@@ -39,9 +39,9 @@ it('shows tour price correctly', function () {
     // Act & Assert
     expect(get('/api/v1/travels/' . $travel->slug . '/tours'))
         ->assertOk()
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json): AssertableJson => $json
             ->has('data', 1)
-            ->has('data.0', fn (AssertableJson $json) => $json
+            ->has('data.0', fn (AssertableJson $json): AssertableJson => $json
                 ->where('price', '123.45')
                 ->whereType('price', 'string')
                 ->etc()
@@ -61,8 +61,8 @@ it('returns tours of travel with pagination', function (): void {
     // Act & Assert
     expect(get('/api/v1/travels/' . $travel->slug . '/tours'))
         ->assertOk()
-        ->assertJson(fn (AssertableJson $json) => $json
-            ->has('data', 15, fn (AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json): AssertableJson => $json
+            ->has('data', 15, fn (AssertableJson $json): AssertableJson => $json
                 ->hasAll([
                     'id',
                     'name',
@@ -72,7 +72,7 @@ it('returns tours of travel with pagination', function (): void {
                 ])
             )
             ->has('links')
-            ->has('meta', fn (AssertableJson $json) => $json
+            ->has('meta', fn (AssertableJson $json): AssertableJson => $json
                 ->where('last_page', 2)
                 ->etc()
             )
@@ -96,13 +96,13 @@ it('returns tours of travel sort by starting date correctly', function (): void 
     // Act & Assert
     expect(get('/api/v1/travels/' . $travel->slug . '/tours'))
         ->assertOk()
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json): AssertableJson => $json
             ->has('data', 2)
-            ->has('data.0', fn (AssertableJson $json) => $json
+            ->has('data.0', fn (AssertableJson $json): AssertableJson => $json
                 ->where('id', $earlierTour->id)
                 ->etc()
             )
-            ->has('data.1', fn (AssertableJson $json) => $json
+            ->has('data.1', fn (AssertableJson $json): AssertableJson => $json
                 ->where('id', $laterTour->id)
                 ->etc()
             )

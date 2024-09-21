@@ -26,11 +26,11 @@ final class TourController extends Controller
         }
 
         $tours = $travel->tours()
-            ->when(isset($data['priceFrom']), fn (TourBuilder $query) => $query->wherePriceFrom($data['priceFrom']))
-            ->when(isset($data['priceTo']), fn (TourBuilder $query) => $query->wherePriceTo($data['priceTo']))
-            ->when(isset($data['startingFrom']), fn (TourBuilder $query) => $query->whereStartingFrom($data['startingFrom']))
-            ->when(isset($data['startingTo']), fn (TourBuilder $query) => $query->whereStartingTo($data['startingTo']))
-            ->when(isset($data['sortBy']), fn (TourBuilder $query) => $query->orderBy($data['sortBy'], $data['sortDirection']))
+            ->when(isset($data['priceFrom']), fn (TourBuilder $query): TourBuilder => $query->wherePriceFrom($data['priceFrom']))
+            ->when(isset($data['priceTo']), fn (TourBuilder $query): TourBuilder => $query->wherePriceTo($data['priceTo']))
+            ->when(isset($data['startingFrom']), fn (TourBuilder $query): TourBuilder => $query->whereStartingFrom($data['startingFrom']))
+            ->when(isset($data['startingTo']), fn (TourBuilder $query): TourBuilder => $query->whereStartingTo($data['startingTo']))
+            ->when(isset($data['sortBy']), fn (TourBuilder $query): TourBuilder => $query->orderBy($data['sortBy'], $data['sortDirection']))
             ->orderByStartingDate()
             ->paginate();
 

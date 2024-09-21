@@ -15,11 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         apiPrefix: '/api/v1',
     )
-    ->withMiddleware(function (Middleware $middleware) {
+    ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api([
             ForceJsonResponse::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions) {
+    ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
