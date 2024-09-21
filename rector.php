@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
-use Rector\Set\ValueObject\SetList;
-use RectorLaravel\Set\LaravelSetList;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -22,8 +20,11 @@ return RectorConfig::configure()
         AddOverrideAttributeToOverriddenMethodsRector::class,
     ])
     ->withPhpSets(php83: true)
-    ->withSets([
-        SetList::DEAD_CODE,
-        SetList::CODE_QUALITY,
-        LaravelSetList::LARAVEL_110,
-    ]);
+    ->withPreparedSets(
+        deadCode: true,
+        codeQuality: true,
+        typeDeclarations: true,
+        privatization: true,
+        earlyReturn: true,
+        strictBooleans: true,
+    );
