@@ -7,7 +7,7 @@ namespace Database\Seeders;
 use App\Models\Travel;
 use Illuminate\Database\Seeder;
 
-final class DummySeeder extends Seeder
+final class TravelSeeder extends Seeder
 {
     public function run(): void
     {
