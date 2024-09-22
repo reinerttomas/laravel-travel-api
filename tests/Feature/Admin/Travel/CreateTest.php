@@ -5,11 +5,10 @@ declare(strict_types=1);
 use App\Models\User;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\post;
 
 it('cannot create a travel as guest', function (): void {
     // Act
-    post('/api/v1/admin/travels')
+    api()->v1()->post('/admin/travels')
         ->assertUnauthorized();
 });
 
@@ -20,7 +19,7 @@ it('cannot create a travel as non admin', function (): void {
     actingAs($user);
 
     // Act & Assert
-    post('/api/v1/admin/travels')
+    api()->v1()->post('/admin/travels')
         ->assertForbidden();
 });
 
@@ -31,7 +30,7 @@ it('can create a travel', function (array $data): void {
     actingAs($user);
 
     // Act & Assert
-    post('/api/v1/admin/travels', $data)
+    api()->v1()->post('/admin/travels', $data)
         ->assertCreated()
         ->assertJsonFragment([
             'name' => $data['name'],

@@ -5,14 +5,12 @@ declare(strict_types=1);
 use App\Models\Travel;
 use Illuminate\Testing\Fluent\AssertableJson;
 
-use function Pest\Laravel\get;
-
 it('returns list of travels with pagination', function (): void {
     // Arrange
     Travel::factory()->count(20)->public()->create();
 
     // Act & Assert
-    expect(get('/api/v1/travels'))
+    expect(api()->v1()->get('/travels'))
         ->assertOk()
         ->assertJson(fn (AssertableJson $json): AssertableJson => $json
             ->has('data', 15, fn (AssertableJson $json): AssertableJson => $json
@@ -39,7 +37,7 @@ it('returns list of public travels', function (): void {
     $publicTravel = Travel::factory()->public()->create();
 
     // Act & Assert
-    expect(get('/api/v1/travels'))
+    expect(api()->v1()->get('/travels'))
         ->assertOk()
         ->assertJson(fn (AssertableJson $json): AssertableJson => $json
             ->has('data', 1)

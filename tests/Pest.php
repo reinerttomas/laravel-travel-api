@@ -14,6 +14,7 @@ declare(strict_types=1);
 */
 
 use Carbon\CarbonInterface;
+use Tests\Extensions\Api\Api;
 
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
@@ -46,4 +47,9 @@ expect()->extend('toBeOne', fn () => $this->toBe(1));
 function formatDate(CarbonInterface $carbon): string
 {
     return $carbon->toDateString();
+}
+
+function api(): Api
+{
+    return new Api;
 }

@@ -16,7 +16,7 @@ it('returns tours of travel by slug', function (): void {
     ]);
 
     // Act & Assert
-    expect(get('/api/v1/travels/' . $travel->slug . '/tours'))
+    expect(api()->v1()->get('/travels/' . $travel->slug . '/tours'))
         ->assertOk()
         ->assertJson(fn (AssertableJson $json): AssertableJson => $json
             ->has('data', 1)
@@ -37,7 +37,7 @@ it('shows tour price correctly', function (): void {
     ]);
 
     // Act & Assert
-    expect(get('/api/v1/travels/' . $travel->slug . '/tours'))
+    expect(api()->v1()->get('/travels/' . $travel->slug . '/tours'))
         ->assertOk()
         ->assertJson(fn (AssertableJson $json): AssertableJson => $json
             ->has('data', 1)
@@ -59,7 +59,7 @@ it('returns tours of travel with pagination', function (): void {
     ]);
 
     // Act & Assert
-    expect(get('/api/v1/travels/' . $travel->slug . '/tours'))
+    expect(api()->v1()->get('/travels/' . $travel->slug . '/tours'))
         ->assertOk()
         ->assertJson(fn (AssertableJson $json): AssertableJson => $json
             ->has('data', 15, fn (AssertableJson $json): AssertableJson => $json
@@ -94,7 +94,7 @@ it('returns tours of travel sort by starting date correctly', function (): void 
     ]);
 
     // Act & Assert
-    expect(get('/api/v1/travels/' . $travel->slug . '/tours'))
+    expect(api()->v1()->get('/travels/' . $travel->slug . '/tours'))
         ->assertOk()
         ->assertJson(fn (AssertableJson $json): AssertableJson => $json
             ->has('data', 2)
@@ -131,7 +131,7 @@ it('returns tours of travel sort by price correctly', function (): void {
     ]);
 
     // Act & Assert
-    expect(get('/api/v1/travels/' . $travel->slug . '/tours?sortBy=price&sortDirection=asc'))
+    expect(api()->v1()->get('/travels/' . $travel->slug . '/tours?sortBy=price&sortDirection=asc'))
         ->assertOk()
         ->assertJsonPath('data.0.id', $cheapEarlierTour->id)
         ->assertJsonPath('data.1.id', $cheapLaterTour->id)
@@ -150,7 +150,7 @@ it('filters tours of travel by price correctly', function (): void {
         'price' => 100,
     ]);
 
-    $endpoint = '/api/v1/travels/' . $travel->slug . '/tours';
+    $endpoint = api()->v1()->endpoint('/travels/' . $travel->slug . '/tours');
 
     // Act & Assert
 
@@ -225,7 +225,7 @@ it('filters tours of travel by starting date correctly', function (): void {
         'ending_date' => now()->addDay(),
     ]);
 
-    $endpoint = '/api/v1/travels/' . $travel->slug . '/tours';
+    $endpoint = api()->v1()->endpoint('/travels/' . $travel->slug . '/tours');
 
     // Act & Assert
 
@@ -291,9 +291,9 @@ it('it returns validation errors', function (): void {
     $travel = Travel::factory()->create();
 
     // Act & Assert
-    expect(get('/api/v1/travels/' . $travel->slug . '/tours?startingFrom=abc'))
+    expect(api()->v1()->get('/travels/' . $travel->slug . '/tours?startingFrom=abc'))
         ->assertUnprocessable();
 
-    expect(get('/api/v1/travels/' . $travel->slug . '/tours?priceFrom=abc'))
+    expect(api()->v1()->get('/travels/' . $travel->slug . '/tours?priceFrom=abc'))
         ->assertUnprocessable();
 });
