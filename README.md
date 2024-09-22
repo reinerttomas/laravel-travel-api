@@ -1,66 +1,372 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Consuming API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This project shows how to create APIs in Laravel for a travel application.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* ✅ Laravel 11
+* ✅ Laravel prompts (beautiful CLI)
+* ✅ API versioning
+* ✅ API documentation with [Scramble](https://scramble.dedoc.co/)
+* ✅ Actions
+* ✅ Custom query builders
+* ✅ Data transfer objects
+* ✅ Value objects
+* ✅ PHPStan
+* ✅ Rector
+* ✅ Laravel Pint (PHP Coding Standards Fixer)
+* ✅ Pest (testing)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Installation
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Install dependencies using Composer
 
-## Learning Laravel
+```
+composer install
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Create your .env file from example
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```
+cp .env.example .env
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Commands
 
-## Laravel Sponsors
+### CreateUserCommand
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+To create a user we use the CLI command. Thanks to the package `laravel/prompts` we have beautiful and clear commands.
 
-### Premium Partners
+```php
+final class CreateUserCommand extends Command
+{
+    /**
+     * @var string
+     */
+    protected $signature = 'user:create';
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+    /**
+     * @var string
+     */
+    protected $description = 'Creates new user';
 
-## Contributing
+    public function __construct(
+        private readonly CreateUserAction $createUserAction,
+    ) {
+        parent::__construct();
+    }
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    public function handle(): int
+    {
+        $data = form()
+            ->text(
+                label: 'What is your name?',
+                required: true,
+                validate: ['required', 'string', 'max:255'],
+                name: 'name',
+            )
+            ->text(
+                label: 'What is your email?',
+                required: true,
+                validate: ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
+                name: 'email',
+            )
+            ->password(
+                label: 'What is your password?',
+                required: true,
+                validate: ['password' => Password::default()],
+                hint: 'Minimum 8 characters.',
+                name: 'password',
+            )
+            ->select(
+                label: 'What role should the user have?',
+                options: ['admin', 'editor'],
+                name: 'role',
+            )
+            ->submit();
 
-## Code of Conduct
+        $role = Role::whereName($data['role'])->first();
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+        if ($role === null) {
+            $this->error('Role not found');
 
-## Security Vulnerabilities
+            return -1;
+        }
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+        $user = $this->createUserAction->execute(
+            new CreateUserData(
+                $data['name'],
+                $data['email'],
+                $data['password'],
+                $role,
+            )
+        );
 
-## License
+        info(sprintf('User "%s" created successfully.', $user->email));
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+        return 1;
+    }
+}
+```
+
+## Actions
+
+Actions in Laravel are separate classes that encapsulate one specific task or part of the business logic of an application. They are part of a concept that seeks to improve code organization and adhere to the Single Responsibility Principle.
+
+Action class should have one public method execute, run, handle. The name is up to you.
+
+### Create access token
+
+Verify login credentials and create an access token. It returns token as value object.
+
+```php
+final readonly class CreateAccessTokenAction
+{
+    public function execute(User $user, CreateAccessTokenData $data): AccessToken
+    {
+        $attempt = Auth::attempt([
+            'email' => $data->email,
+            'password' => $data->password,
+        ]);
+
+        if (! $attempt) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        return new AccessToken(
+            $user->createToken($this->device($data->userAgent))->plainTextToken
+        );
+    }
+
+    private function device(?string $userAgent): string
+    {
+        return substr($userAgent ?? '', 0, 255);
+    }
+}
+```
+
+### Create user
+
+we use database transactions because we perform 2 operations:
+
+- creating user
+- attaching role to user
+
+```php
+final readonly class CreateUserAction
+{
+    public function execute(CreateUserData $data): User
+    {
+        return DB::transaction(function () use ($data): User {
+            $user = User::create([
+                'name' => $data->name,
+                'email' => $data->email,
+                'password' => Hash::make($data->password),
+            ]);
+            $user->roles()->attach($data->role->id);
+
+            return $user;
+        });
+    }
+}
+```
+
+## Query builders
+
+Personally, I don't really like the scope inside the models. A simple solution is a custom query builder.
+
+## Travel builder
+
+In model:
+
+```php
+final class Travel extends Model
+{
+    // ...
+    
+    public function newEloquentBuilder($query): TravelBuilder
+    {
+        return new TravelBuilder($query);
+    }
+    
+    // ...
+}
+```
+
+Custom query builder:
+
+```php
+/**
+ * @extends Builder<Travel>
+ */
+final class TravelBuilder extends Builder
+{
+    public function wherePublic(bool $isPublic = true): self
+    {
+        return $this->where('is_public', $isPublic);
+    }
+}
+```
+
+## Testing
+
+For tests, it uses a [pest](https://pestphp.com/). Several tests are created for each endpoint to ensure proper functioning. I'll just give you a few examples.
+
+### Login
+
+```php
+it('returns token with valid credentials', function (): void {
+    // Arrange
+    $user = User::factory()->create();
+
+    $data = [
+        'email' => $user->email,
+        'password' => 'password',
+    ];
+
+    // Act & Assert
+    api()->v1()->post('/login', $data)
+        ->assertCreated()
+        ->assertJsonStructure([
+            'access_token',
+        ]);
+});
+
+it('returns errors with invalid credentials', function (): void {
+    // Arrange
+    $data = [
+        'email' => 'nonexisting@user.com',
+        'password' => 'password',
+    ];
+
+    // Act & Assert
+    api()->v1()->post('/login', $data)
+        ->assertUnprocessable();
+});
+```
+
+### Travel
+
+```php
+it('returns tours of travel by slug', function (): void {
+    // Arrange
+    $travel = Travel::factory()->create();
+    $tour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+    ]);
+
+    // Act & Assert
+    expect(api()->v1()->get('/travels/' . $travel->slug . '/tours'))
+        ->assertOk()
+        ->assertJson(fn (AssertableJson $json): AssertableJson => $json
+            ->has('data', 1)
+            ->has('data.0', fn (AssertableJson $json): AssertableJson => $json
+                ->where('id', $tour->id)
+                ->etc()
+            )
+            ->etc()
+        );
+});
+
+it('shows tour price correctly', function (): void {
+    // Arrange
+    $travel = Travel::factory()->create();
+    $tour = Tour::factory()->create([
+        'travel_id' => $travel->id,
+        'price' => 123.45,
+    ]);
+
+    // Act & Assert
+    expect(api()->v1()->get('/travels/' . $travel->slug . '/tours'))
+        ->assertOk()
+        ->assertJson(fn (AssertableJson $json): AssertableJson => $json
+            ->has('data', 1)
+            ->has('data.0', fn (AssertableJson $json): AssertableJson => $json
+                ->where('price', '123.45')
+                ->whereType('price', 'string')
+                ->etc()
+            )
+            ->etc()
+        );
+});
+```
+
+### Extensions
+
+Because I didn't want to keep typing in the tests endpoints like: 
+
+`/api/v1/travels` 
+
+So I created a helper classes then can replace typing with:
+
+`api()->v1()->get('/travels/' . $travel->slug . '/tours')`
+
+#### Api
+
+```php
+final readonly class Api
+{
+    public function __construct(
+        private string $prefix = '/api',
+    ) {}
+
+    public function v1(): Http
+    {
+        return $this->client('v1');
+    }
+
+    public function v2(): Http
+    {
+        return $this->client('v2');
+    }
+
+    private function client(string $version): Http
+    {
+        return new Http($this->prefix . '/' . $version);
+    }
+}
+```
+
+#### Http
+
+```php
+final readonly class Http
+{
+    public function __construct(
+        private string $prefix
+    ) {}
+
+    public function endpoint(string $uri): string
+    {
+        return $this->prefix . $uri;
+    }
+
+    public function get(string $uri): TestResponse
+    {
+        return get($this->prefix . $uri);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function post(string $uri, array $data = []): TestResponse
+    {
+        return post($this->prefix . $uri, $data);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function put(string $uri, array $data = []): TestResponse
+    {
+        return put($this->prefix . $uri, $data);
+    }
+
+    public function delete(string $uri): TestResponse
+    {
+        return delete($this->prefix . $uri);
+    }
+}
+```
