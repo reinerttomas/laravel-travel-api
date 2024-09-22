@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -30,13 +31,28 @@ final class UserFactory extends Factory
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
+    public function unverified(): self
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    public function admin(): self
+    {
+        return $this->withRole('admin');
+    }
+
+    public function editor(): self
+    {
+        return $this->withRole('editor');
+    }
+
+    private function withRole(string $roleName): self
+    {
+        return $this->afterCreating(function (User $user) use ($roleName): void {
+            $role = Role::firstOrCreate(['name' => $roleName]);
+            $user->roles()->attach($role->id);
+        });
     }
 }

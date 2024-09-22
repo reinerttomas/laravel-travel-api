@@ -13,6 +13,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 final class TravelResource extends JsonResource
 {
+    public static $wrap;
+
     /**
      * @return array<string, mixed>
      */
