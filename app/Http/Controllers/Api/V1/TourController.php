@@ -13,6 +13,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 final class TourController extends Controller
 {
+    /**
+     * @unauthenticated
+     */
     public function index(Travel $travel, ToursListRequest $request): AnonymousResourceCollection
     {
         $data = $request->validated();

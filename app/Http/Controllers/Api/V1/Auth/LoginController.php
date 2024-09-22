@@ -15,6 +15,9 @@ use Illuminate\Validation\ValidationException;
 
 final class LoginController extends Controller
 {
+    /**
+     * @unauthenticated
+     */
     public function __invoke(
         LoginRequest $request,
         CreateAccessTokenAction $createAccessTokenAction,

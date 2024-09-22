@@ -11,6 +11,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 final class TravelController extends Controller
 {
+    /**
+     * @unauthenticated
+     */
     public function index(): AnonymousResourceCollection
     {
         $travels = Travel::query()->wherePublic()->paginate();

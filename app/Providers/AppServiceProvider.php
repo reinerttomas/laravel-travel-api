@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\OpenApi;
+use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Support\ServiceProvider;
 
 final class AppServiceProvider extends ServiceProvider
@@ -13,7 +16,9 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        Scramble::registerApi('v1', [
+            'api_path' => 'api/v1',
+        ]);
     }
 
     /**
@@ -21,6 +26,10 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Scramble::afterOpenApiGenerated(function (OpenApi $openApi): void {
+            $openApi->secure(
+                SecurityScheme::http('bearer')
+            );
+        });
     }
 }
