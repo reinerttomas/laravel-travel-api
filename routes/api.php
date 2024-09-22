@@ -18,4 +18,5 @@ Route::get('user', fn (Request $request) => $request->user())->middleware('auth:
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function (): void {
     Route::post('travels', [Admin\TravelController::class, 'store']);
+    Route::post('travels/{travel}/tours', [Admin\TourController::class, 'store']);
 });
