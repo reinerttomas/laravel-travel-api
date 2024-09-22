@@ -43,3 +43,18 @@ it('can create a travel', function (array $data): void {
         'number_of_days' => 5,
     ],
 ]);
+
+it('cannot create a travel with invalid data', function (array $data): void {
+    // Arrange
+    $user = User::factory()->admin()->create();
+
+    actingAs($user);
+
+    // Act & Assert
+    api()->v1()->post('/admin/travels', $data)
+        ->assertUnprocessable();
+})->with([
+    fn (): array => [
+        'name' => 'Travel name',
+    ],
+]);

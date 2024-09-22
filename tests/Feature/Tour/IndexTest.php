@@ -232,7 +232,7 @@ it('filters tours of travel by starting date correctly', function (): void {
     // startingFrom
     $startingFrom = now();
 
-    expect(get($endpoint . '?startingFrom=' . formatDate($startingFrom)))
+    expect(get($endpoint . '?startingFrom=' . $startingFrom->toDateString()))
         ->assertOk()
         ->assertJsonCount(2, 'data')
         ->assertJsonFragment(['id' => $earlierTour->id])
@@ -240,7 +240,7 @@ it('filters tours of travel by starting date correctly', function (): void {
 
     $startingFrom = now()->addDay();
 
-    expect(get($endpoint . '?startingFrom=' . formatDate($startingFrom)))
+    expect(get($endpoint . '?startingFrom=' . $startingFrom->toDateString()))
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonMissing(['id' => $earlierTour->id])
@@ -248,14 +248,14 @@ it('filters tours of travel by starting date correctly', function (): void {
 
     $startingFrom = now()->addDays(5);
 
-    expect(get($endpoint . '?startingFrom=' . formatDate($startingFrom)))
+    expect(get($endpoint . '?startingFrom=' . $startingFrom->toDateString()))
         ->assertOk()
         ->assertJsonCount(0, 'data');
 
     // startingTo
     $startingTo = now()->addDays(5);
 
-    expect(get($endpoint . '?startingTo=' . formatDate($startingTo)))
+    expect(get($endpoint . '?startingTo=' . $startingTo->toDateString()))
         ->assertOk()
         ->assertJsonCount(2, 'data')
         ->assertJsonFragment(['id' => $earlierTour->id])
@@ -263,7 +263,7 @@ it('filters tours of travel by starting date correctly', function (): void {
 
     $startingTo = now()->addDay();
 
-    expect(get($endpoint . '?startingTo=' . formatDate($startingTo)))
+    expect(get($endpoint . '?startingTo=' . $startingTo->toDateString()))
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonFragment(['id' => $earlierTour->id])
@@ -271,7 +271,7 @@ it('filters tours of travel by starting date correctly', function (): void {
 
     $startingTo = now()->subDay();
 
-    expect(get($endpoint . '?startingTo=' . formatDate($startingTo)))
+    expect(get($endpoint . '?startingTo=' . $startingTo->toDateString()))
         ->assertOk()
         ->assertJsonCount(0, 'data');
 
@@ -279,7 +279,7 @@ it('filters tours of travel by starting date correctly', function (): void {
     $startingFrom = now()->addDay();
     $startingTo = now()->addDays(5);
 
-    expect(get($endpoint . '?startingFrom=' . formatDate($startingFrom) . '&startingTo=' . formatDate($startingTo)))
+    expect(get($endpoint . '?startingFrom=' . $startingFrom->toDateString() . '&startingTo=' . $startingTo->toDateString()))
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonMissing(['id' => $earlierTour->id])

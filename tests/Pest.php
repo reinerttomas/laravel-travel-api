@@ -13,7 +13,6 @@ declare(strict_types=1);
 |
 */
 
-use Carbon\CarbonInterface;
 use Tests\Extensions\Api\Api;
 
 pest()->extend(Tests\TestCase::class)
@@ -43,11 +42,6 @@ expect()->extend('toBeOne', fn () => $this->toBe(1));
 | global functions to help you to reduce the number of lines of code in your test files.
 |
 */
-
-function formatDate(CarbonInterface $carbon): string
-{
-    return $carbon->toDateString();
-}
 
 function api(): Api
 {
