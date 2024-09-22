@@ -22,7 +22,7 @@ final readonly class RoleMiddleware
             abort(401);
         }
 
-        if (! Auth::findOrFail()->roles()->where('name', $role)->exists()) {
+        if (! Auth::findOrFail()->roles()->whereName($role)->exists()) {
             abort(403);
         }
 

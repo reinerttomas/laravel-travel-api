@@ -17,7 +17,7 @@ it('returns token with valid credentials', function (): void {
 
     // Act & Assert
     post('/api/v1/login', $data)
-        ->assertOk()
+        ->assertCreated()
         ->assertJsonStructure([
             'access_token',
         ]);

@@ -4,28 +4,40 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
+use App\Actions\CreateAccessTokenAction;
+use App\DataTransferObjects\CreateAccessTokenData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\Api\V1\Auth\TokenResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 final class LoginController extends Controller
 {
-    public function __invoke(LoginRequest $request): JsonResponse
-    {
-        $user = User::where('email', $request->email)->first();
+    public function __invoke(
+        LoginRequest $request,
+        CreateAccessTokenAction $createAccessTokenAction,
+    ): JsonResponse {
+        $user = User::whereEmail($request->email)->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'error' => 'The provided credentials are incorrect.',
-            ], 422);
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
         }
 
-        $device = substr($request->userAgent() ?? '', 0, 255);
+        $tokenData = $createAccessTokenAction->execute(
+            $user,
+            new CreateAccessTokenData(
+                $request->email,
+                $request->password,
+                $request->userAgent() ?? '',
+            )
+        );
 
-        return response()->json([
-            'access_token' => $user->createToken($device)->plainTextToken,
-        ]);
+        return TokenResource::make($tokenData)
+            ->response()
+            ->setStatusCode(201);
     }
 }
