@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Api\V1\Auth;
 
-use App\DataTransferObjects\AccessTokenData;
+use App\ValueObjects\AccessToken;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin AccessTokenData
+ * @mixin AccessToken
  */
 final class TokenResource extends JsonResource
 {

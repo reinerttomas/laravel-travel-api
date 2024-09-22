@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\DataTransferObjects;
+namespace App\ValueObjects;
 
-final readonly class AccessTokenData
+final readonly class AccessToken
 {
     public function __construct(
         public string $accessToken,
