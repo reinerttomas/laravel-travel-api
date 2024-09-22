@@ -16,7 +16,11 @@ Route::post('login', LoginController::class);
 
 Route::get('user', fn (Request $request) => $request->user())->middleware('auth:sanctum');
 
-Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function (): void {
-    Route::post('travels', [Admin\TravelController::class, 'store']);
-    Route::post('travels/{travel}/tours', [Admin\TourController::class, 'store']);
+Route::prefix('admin')->middleware(['auth:sanctum'])->group(function (): void {
+    Route::middleware('role:admin')->group(function (): void {
+        Route::post('travels', [Admin\TravelController::class, 'store']);
+        Route::post('travels/{travel}/tours', [Admin\TourController::class, 'store']);
+    });
+
+    Route::put('travels/{travel}', [Admin\TravelController::class, 'update']);
 });

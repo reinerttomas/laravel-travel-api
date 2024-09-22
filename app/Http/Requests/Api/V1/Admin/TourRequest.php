@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1\Admin;
 
-use App\Models\Travel;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Unique;
 
-final class CreateTravelRequest extends FormRequest
+final class TourRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -21,10 +19,10 @@ final class CreateTravelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', new Unique(Travel::class)],
-            'description' => ['required'],
-            'is_public' => 'boolean',
-            'number_of_days' => ['required', 'integer'],
+            'name' => ['required'],
+            'starting_date' => ['required', 'date'],
+            'ending_date' => ['required', 'date', 'after:starting_date'],
+            'price' => ['required', 'numeric'],
         ];
     }
 }
