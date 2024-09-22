@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: '/api/v1',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->api([
+        $middleware->api(prepend: [
             ForceJsonResponse::class,
         ]);
     })
